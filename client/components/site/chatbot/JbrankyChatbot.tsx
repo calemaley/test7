@@ -210,6 +210,46 @@ export default function JbrankyChatbot() {
   );
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  const patchSession = useCallback(
+    async (
+      payload: Parameters<typeof updateChatbotSession>[1],
+      sessionId?: string,
+    ) => {
+      const targetId = sessionId ?? session?.id;
+      if (!targetId) return null;
+      const updated = await updateChatbotSession(targetId, payload);
+      setSession(updated);
+      return updated;
+    },
+    [session],
+  );
+
+  const recordSessionAction = useCallback(
+    async (action: {
+      type: ChatbotActionLog["type"];
+      label: string;
+      source: "quick-action" | "submission" | "system";
+      payload?: Record<string, unknown>;
+    }) => {
+      if (!session) return;
+      const existing = session.metadata.actions ?? [];
+      const nextActions: ChatbotActionLog[] = [
+        ...existing,
+        {
+          type: action.type,
+          at: new Date().toISOString(),
+          payload: {
+            label: action.label,
+            source: action.source,
+            ...(action.payload ?? {}),
+          },
+        },
+      ];
+      await patchSession({ metadata: { actions: nextActions } }, session.id);
+    },
+    [patchSession, session],
+  );
+
   useEffect(() => {
     const storedId = retrieveSessionId();
     if (!storedId) {
