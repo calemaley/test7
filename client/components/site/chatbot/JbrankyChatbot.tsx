@@ -434,6 +434,35 @@ export default function JbrankyChatbot() {
   const handleQuickReply = async (reply: QuickReply) => {
     setQuickReplies((prev) => prev.filter((item) => item.id !== reply.id));
     const payload = reply.payload;
+    if (session) {
+      const logPayload: Record<string, unknown> = {
+        payloadType: payload.type,
+      };
+      if (payload.type === "service_detail" || payload.type === "select_service") {
+        logPayload.serviceId = payload.serviceId;
+      }
+      if (payload.type === "link") {
+        logPayload.href = payload.href;
+      }
+      if (payload.type === "start_submission") {
+        logPayload.submissionType = payload.submissionType;
+      }
+      if (payload.type === "knowledge") {
+        logPayload.topic = payload.topic;
+      }
+      await recordSessionAction({
+        type: resolveQuickReplyActionType(reply),
+        label: reply.label,
+        source: "quick-action",
+        payload: logPayload,
+      });
+      await pushMessage(
+        "system",
+        `Quick action selected: ${reply.label}`,
+        BOT_INTENTS.TUTORIAL,
+        { display: false, sessionId: session.id },
+      );
+    }
     switch (payload.type) {
       case "knowledge": {
         if (payload.topic === "services") {
