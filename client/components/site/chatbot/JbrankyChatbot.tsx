@@ -81,6 +81,23 @@ type QuickReply = {
     | { type: "reset" };
 };
 
+function resolveQuickReplyActionType(
+  reply: QuickReply,
+): ChatbotActionLog["type"] {
+  const payload = reply.payload;
+  switch (payload.type) {
+    case "start_submission":
+      return payload.submissionType ?? "general";
+    case "service_detail":
+    case "select_service":
+      return "service";
+    case "knowledge":
+      return payload.topic === "services" ? "service" : "general";
+    default:
+      return "general";
+  }
+}
+
 type DraftLead = {
   name: string;
   email: string;
