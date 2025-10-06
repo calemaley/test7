@@ -68,19 +68,44 @@ export const companyInfo = {
   ] satisfies ServiceInfo[],
   tutorial: [
     {
-      title: "Welcome",
+      title: "Welcome tour",
       description:
-        "Discover our key services, request a call back, or ask anything about JBRANKY LTD.",
+        "I'm your virtual guide. Together we'll navigate JBRANKY LTD's services, expertise, and support options.",
     },
     {
-      title: "Quick actions",
+      title: "Homepage overview",
       description:
-        "Use the quick buttons to request service details, book consultations, or ask for pricing guidance.",
+        "Begin on the homepage where the hero story sets our mission. The primary buttons → Request a Quote and → Our Services lead you to enquiries and a full service overview.",
     },
     {
-      title: "Talk to a human",
+      title: "Who We Are",
       description:
-        "Share your contact details and we will arrange a call back from the right specialist.",
+        "Use the top navigation → Who We Are to meet our leadership, certifications, and regional footprint so you understand our credentials before engaging us.",
+    },
+    {
+      title: "What We Do",
+      description:
+        "Select → What We Do to dive into hydropower, medium-voltage, and Sollatek solutions with detailed deliverables, case benefits, and pathways to deeper service pages.",
+    },
+    {
+      title: "Gallery of projects",
+      description:
+        "Navigate to → Gallery to inspect highlighted installations, timelines, and outcomes. Each project card links to richer context so you can evaluate our field experience.",
+    },
+    {
+      title: "Insights & updates",
+      description:
+        "Choose → Blog for expert explainers, regulatory updates, and maintenance tips. It keeps stakeholders informed on emerging power and protection trends.",
+    },
+    {
+      title: "Contact & booking",
+      description:
+        "Head to → Contact to submit project briefs, book consultations, or select targeted services. The form adapts to your needs so our engineers respond within one business day.",
+    },
+    {
+      title: "Using this chatbot",
+      description:
+        "Tap the quick actions ↗ to explore services, start bookings, or request a call back. Type any question for tailored replies and I will log every step for the admin dashboard.",
     },
   ] satisfies TutorialStep[],
   knowledgeBase: [
