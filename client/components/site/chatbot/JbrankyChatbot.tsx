@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   MessageCircle,
@@ -20,6 +20,7 @@ import {
   createChatbotSession,
   getChatbotSession,
   updateChatbotSession,
+  type ChatbotActionLog,
   type ChatbotMessage,
   type ChatbotSession,
 } from "@/lib/chatbot";
