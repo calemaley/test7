@@ -543,15 +543,19 @@ export default function JbrankyChatbot() {
             })),
           );
         } else if (type === "consultation") {
-          await updateChatbotSession(session!.id, {
-            metadata: { bookedConsultation: true },
-            lastIntent: BOT_INTENTS.CONSULTATION,
-          });
+          if (!session) break;
+          await patchSession(
+            {
+              metadata: { bookedConsultation: true },
+              lastIntent: BOT_INTENTS.CONSULTATION,
+            },
+            session.id,
+          );
           const q = new URLSearchParams({
             type: "consultation",
-            name: session!.visitorName,
-            email: session!.visitorEmail,
-            phone: session!.visitorPhone,
+            name: session.visitorName,
+            email: session.visitorEmail,
+            phone: session.visitorPhone,
           });
           navigate(`/contact?${q.toString()}`);
           await pushMessage(
