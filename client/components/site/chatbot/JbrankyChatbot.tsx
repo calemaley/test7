@@ -265,9 +265,7 @@ export default function JbrankyChatbot() {
       setPhase("lead");
       setTutorialIndex(tutorialSteps.length - 1);
       if (session) {
-        await updateChatbotSession(session.id, {
-          metadata: { tutorialCompleted: true },
-        });
+        await patchSession({ metadata: { tutorialCompleted: true } });
       }
       return;
     }
