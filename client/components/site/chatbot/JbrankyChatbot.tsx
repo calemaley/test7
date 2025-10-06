@@ -380,13 +380,20 @@ export default function JbrankyChatbot() {
     sender: ChatbotMessage["sender"],
     content: string,
     intent?: BotIntent,
-    { skipPersist = false }: { skipPersist?: boolean } = {},
+    {
+      skipPersist = false,
+      display = true,
+      sessionId,
+    }: { skipPersist?: boolean; display?: boolean; sessionId?: string } = {},
   ) => {
     const message = createLocalMessage(sender, content, intent);
-    setMessages((prev) => [...prev, message]);
-    if (!session || skipPersist) return message;
+    if (display) {
+      setMessages((prev) => [...prev, message]);
+    }
+    const targetSessionId = sessionId ?? session?.id;
+    if (!targetSessionId || skipPersist) return message;
     try {
-      await appendChatbotMessage(session.id, {
+      await appendChatbotMessage(targetSessionId, {
         sender,
         content,
         intent,
