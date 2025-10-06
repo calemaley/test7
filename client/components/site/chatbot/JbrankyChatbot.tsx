@@ -415,17 +415,20 @@ export default function JbrankyChatbot() {
         "\n" +
         companyInfo.tagline,
       BOT_INTENTS.WELCOME,
-      { skipPersist: false },
+      { sessionId: activeSession.id },
     );
     await pushMessage(
       "bot",
       `You can ask about our services, request a call back, or book a consultation. I can also connect you to our specialists on ${companyInfo.contact.phone}.`,
       BOT_INTENTS.SERVICES_OVERVIEW,
-      { skipPersist: false },
+      { sessionId: activeSession.id },
     );
-    await updateChatbotSession(activeSession.id, {
-      metadata: { tutorialCompleted: true },
-    });
+    await patchSession(
+      {
+        metadata: { tutorialCompleted: true },
+      },
+      activeSession.id,
+    );
   };
 
   const handleQuickReply = async (reply: QuickReply) => {
