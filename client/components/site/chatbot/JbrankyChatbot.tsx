@@ -438,7 +438,10 @@ export default function JbrankyChatbot() {
       const logPayload: Record<string, unknown> = {
         payloadType: payload.type,
       };
-      if (payload.type === "service_detail" || payload.type === "select_service") {
+      if (
+        payload.type === "service_detail" ||
+        payload.type === "select_service"
+      ) {
         logPayload.serviceId = payload.serviceId;
       }
       if (payload.type === "link") {
