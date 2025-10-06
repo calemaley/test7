@@ -1,5 +1,11 @@
 export type ChatbotSender = "visitor" | "bot" | "system";
 
+export type ChatbotActionLog = {
+  type: "consultation" | "callback" | "service" | "general";
+  at: string;
+  payload?: Record<string, unknown>;
+};
+
 export interface ChatbotMessage {
   id: string;
   sender: ChatbotSender;
@@ -20,6 +26,10 @@ export interface ChatbotSession {
   metadata: {
     tutorialCompleted: boolean;
     leadCaptured: boolean;
+    requestedCallback?: boolean;
+    bookedConsultation?: boolean;
+    requestedService?: string | null;
+    actions?: ChatbotActionLog[];
   };
   messages: ChatbotMessage[];
 }

@@ -183,5 +183,174 @@
         "intent": "general_inquiry"
       }
     ]
+  },
+  {
+    "id": "d4c0e5a8-7b03-4f05-b1a1-f1de1fc536a6",
+    "visitorName": "caleb",
+    "visitorEmail": "calemale360@gmail.com",
+    "visitorPhone": "0792881220",
+    "createdAt": "2025-10-06T11:39:26.959Z",
+    "updatedAt": "2025-10-06T11:41:02.588Z",
+    "originPath": "/",
+    "metadata": {
+      "tutorialCompleted": true,
+      "leadCaptured": true,
+      "requestedCallback": false,
+      "bookedConsultation": true,
+      "requestedService": null,
+      "actions": [
+        {
+          "type": "consultation",
+          "at": "2025-10-06T11:39:34.160Z",
+          "payload": {
+            "label": "Book consultation",
+            "source": "quick-action",
+            "payloadType": "start_submission",
+            "submissionType": "consultation"
+          }
+        },
+        {
+          "type": "general",
+          "at": "2025-10-06T11:39:54.071Z",
+          "payload": {
+            "label": "General question",
+            "source": "quick-action",
+            "payloadType": "start_submission",
+            "submissionType": "general"
+          }
+        },
+        {
+          "type": "callback",
+          "at": "2025-10-06T11:40:04.164Z",
+          "payload": {
+            "label": "Request call back",
+            "source": "quick-action",
+            "payloadType": "start_submission",
+            "submissionType": "callback"
+          }
+        },
+        {
+          "type": "service",
+          "at": "2025-10-06T11:40:09.678Z",
+          "payload": {
+            "label": "Request a service",
+            "source": "quick-action",
+            "payloadType": "start_submission",
+            "submissionType": "service"
+          }
+        },
+        {
+          "type": "service",
+          "at": "2025-10-06T11:40:13.551Z",
+          "payload": {
+            "label": "Sollatek Protection & Power Quality",
+            "source": "quick-action",
+            "payloadType": "select_service",
+            "serviceId": "sollatek"
+          }
+        }
+      ]
+    },
+    "lastIntent": "general_inquiry",
+    "messages": [
+      {
+        "id": "6d53d845-54f1-48f5-869a-deef1b8d9001",
+        "sender": "bot",
+        "content": "Hi caleb, I'm JBRANKY Bot. I'm here to guide you through JBRANKY LTD.\nPowering a sustainable future with hydropower, large power systems, and Sollatek protection.",
+        "createdAt": "2025-10-06T11:39:27.399Z",
+        "intent": "welcome"
+      },
+      {
+        "id": "e3211bb0-25d3-4d67-bc9b-5ee66ffd0c24",
+        "sender": "bot",
+        "content": "You can ask about our services, request a call back, or book a consultation. I can also connect you to our specialists on 0726502349.",
+        "createdAt": "2025-10-06T11:39:27.834Z",
+        "intent": "services_overview"
+      },
+      {
+        "id": "9e8743c6-be3e-4048-b21b-47cd0dae3101",
+        "sender": "system",
+        "content": "Quick action selected: Book consultation",
+        "createdAt": "2025-10-06T11:39:35.137Z",
+        "intent": "tutorial"
+      },
+      {
+        "id": "474a5054-b14b-402d-af48-8cd55e7cafa6",
+        "sender": "bot",
+        "content": "Opening consultation form. I’ve pre-filled your details.",
+        "createdAt": "2025-10-06T11:39:36.011Z",
+        "intent": "consultation_booking"
+      },
+      {
+        "id": "35910b6b-1c75-49b2-b700-9c970323035f",
+        "sender": "system",
+        "content": "Quick action selected: General question",
+        "createdAt": "2025-10-06T11:39:55.073Z",
+        "intent": "tutorial"
+      },
+      {
+        "id": "bb4e0121-4d88-422a-857b-3aa4de13ffc2",
+        "sender": "bot",
+        "content": "Please share a short description so I can alert the right specialist.",
+        "createdAt": "2025-10-06T11:39:55.513Z",
+        "intent": "general_inquiry"
+      },
+      {
+        "id": "1845db0d-9f78-44b3-abc9-f7f135122d41",
+        "sender": "visitor",
+        "content": "hello",
+        "createdAt": "2025-10-06T11:40:00.572Z",
+        "intent": "general_inquiry"
+      },
+      {
+        "id": "4b0a3141-ef12-42f5-aa2e-5e8f4d3ea395",
+        "sender": "system",
+        "content": "Quick action selected: Request call back",
+        "createdAt": "2025-10-06T11:40:09.231Z",
+        "intent": "tutorial"
+      },
+      {
+        "id": "e04f34f9-d9e0-4751-b5d0-230ee92dad88",
+        "sender": "bot",
+        "content": "Please share a short description so I can alert the right specialist.",
+        "createdAt": "2025-10-06T11:40:09.667Z",
+        "intent": "callback_request"
+      },
+      {
+        "id": "ee724f2b-6b90-4756-9832-9b8aaad77da3",
+        "sender": "system",
+        "content": "Quick action selected: Request a service",
+        "createdAt": "2025-10-06T11:40:10.680Z",
+        "intent": "tutorial"
+      },
+      {
+        "id": "886f96c9-640f-412b-ae17-0bacb24ce9d6",
+        "sender": "bot",
+        "content": "Great! Which service are you interested in? Choose one below or type the name.",
+        "createdAt": "2025-10-06T11:40:11.612Z",
+        "intent": "service_detail"
+      },
+      {
+        "id": "5b73ec4e-d848-43c8-a1d3-e38151dc87f8",
+        "sender": "system",
+        "content": "Quick action selected: Sollatek Protection & Power Quality",
+        "createdAt": "2025-10-06T11:40:14.562Z",
+        "intent": "tutorial"
+      },
+      {
+        "id": "5d4f3371-d2d1-42ff-984a-01cb38c71774",
+        "sender": "bot",
+        "content": "Noted: Sollatek Protection & Power Quality. Could you describe your project or needs so we prepare the right response?",
+        "createdAt": "2025-10-06T11:40:15.484Z",
+        "intent": "service_detail"
+      },
+      {
+        "id": "9e959f11-9d80-4bab-a122-4465a0f2e965",
+        "sender": "visitor",
+        "content": "i was thinking of something nice yeagv",
+        "createdAt": "2025-10-06T11:41:02.588Z",
+        "intent": "general_inquiry"
+      }
+    ]
   }
 ]

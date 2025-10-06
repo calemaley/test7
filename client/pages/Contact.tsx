@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ArrowDownCircle } from "lucide-react";
 import { toast } from "sonner";
 import { saveSubmission } from "@/lib/submissions";
 
@@ -50,6 +52,25 @@ export default function Contact() {
   });
 
   const watchType = form.watch("type");
+  const [showConsultationHint, setShowConsultationHint] = useState(
+    preType === "consultation",
+  );
+
+  useEffect(() => {
+    if (watchType === "consultation") {
+      setShowConsultationHint(true);
+      return;
+    }
+    setShowConsultationHint(false);
+  }, [watchType]);
+
+  useEffect(() => {
+    if (!showConsultationHint) {
+      return;
+    }
+    const timer = window.setTimeout(() => setShowConsultationHint(false), 6000);
+    return () => window.clearTimeout(timer);
+  }, [showConsultationHint]);
 
   const onSubmit = async (values: z.infer<typeof schema>) => {
     try {
@@ -148,7 +169,15 @@ export default function Contact() {
                   control={form.control}
                   name="type"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="relative">
+                      {showConsultationHint && watchType === "consultation" && (
+                        <div className="pointer-events-none absolute -top-14 right-0 flex flex-col items-end text-secondary">
+                          <span className="rounded-full bg-secondary px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow-md shadow-secondary/40">
+                            Consultation form ready
+                          </span>
+                          <ArrowDownCircle className="mt-2 h-6 w-6 animate-bounce" />
+                        </div>
+                      )}
                       <FormLabel>Inquiry type</FormLabel>
                       <FormControl>
                         <Select

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   MessageCircle,
@@ -20,6 +20,7 @@ import {
   createChatbotSession,
   getChatbotSession,
   updateChatbotSession,
+  type ChatbotActionLog,
   type ChatbotMessage,
   type ChatbotSession,
 } from "@/lib/chatbot";
@@ -79,6 +80,23 @@ type QuickReply = {
     | { type: "link"; href: string; label: string }
     | { type: "reset" };
 };
+
+function resolveQuickReplyActionType(
+  reply: QuickReply,
+): ChatbotActionLog["type"] {
+  const payload = reply.payload;
+  switch (payload.type) {
+    case "start_submission":
+      return payload.submissionType ?? "general";
+    case "service_detail":
+    case "select_service":
+      return "service";
+    case "knowledge":
+      return payload.topic === "services" ? "service" : "general";
+    default:
+      return "general";
+  }
+}
 
 type DraftLead = {
   name: string;
@@ -192,6 +210,46 @@ export default function JbrankyChatbot() {
   );
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  const patchSession = useCallback(
+    async (
+      payload: Parameters<typeof updateChatbotSession>[1],
+      sessionId?: string,
+    ) => {
+      const targetId = sessionId ?? session?.id;
+      if (!targetId) return null;
+      const updated = await updateChatbotSession(targetId, payload);
+      setSession(updated);
+      return updated;
+    },
+    [session],
+  );
+
+  const recordSessionAction = useCallback(
+    async (action: {
+      type: ChatbotActionLog["type"];
+      label: string;
+      source: "quick-action" | "submission" | "system";
+      payload?: Record<string, unknown>;
+    }) => {
+      if (!session) return;
+      const existing = session.metadata.actions ?? [];
+      const nextActions: ChatbotActionLog[] = [
+        ...existing,
+        {
+          type: action.type,
+          at: new Date().toISOString(),
+          payload: {
+            label: action.label,
+            source: action.source,
+            ...(action.payload ?? {}),
+          },
+        },
+      ];
+      await patchSession({ metadata: { actions: nextActions } }, session.id);
+    },
+    [patchSession, session],
+  );
+
   useEffect(() => {
     const storedId = retrieveSessionId();
     if (!storedId) {
@@ -247,9 +305,7 @@ export default function JbrankyChatbot() {
       setPhase("lead");
       setTutorialIndex(tutorialSteps.length - 1);
       if (session) {
-        await updateChatbotSession(session.id, {
-          metadata: { tutorialCompleted: true },
-        });
+        await patchSession({ metadata: { tutorialCompleted: true } });
       }
       return;
     }
@@ -324,13 +380,20 @@ export default function JbrankyChatbot() {
     sender: ChatbotMessage["sender"],
     content: string,
     intent?: BotIntent,
-    { skipPersist = false }: { skipPersist?: boolean } = {},
+    {
+      skipPersist = false,
+      display = true,
+      sessionId,
+    }: { skipPersist?: boolean; display?: boolean; sessionId?: string } = {},
   ) => {
     const message = createLocalMessage(sender, content, intent);
-    setMessages((prev) => [...prev, message]);
-    if (!session || skipPersist) return message;
+    if (display) {
+      setMessages((prev) => [...prev, message]);
+    }
+    const targetSessionId = sessionId ?? session?.id;
+    if (!targetSessionId || skipPersist) return message;
     try {
-      await appendChatbotMessage(session.id, {
+      await appendChatbotMessage(targetSessionId, {
         sender,
         content,
         intent,
@@ -352,22 +415,57 @@ export default function JbrankyChatbot() {
         "\n" +
         companyInfo.tagline,
       BOT_INTENTS.WELCOME,
-      { skipPersist: false },
+      { sessionId: activeSession.id },
     );
     await pushMessage(
       "bot",
       `You can ask about our services, request a call back, or book a consultation. I can also connect you to our specialists on ${companyInfo.contact.phone}.`,
       BOT_INTENTS.SERVICES_OVERVIEW,
-      { skipPersist: false },
+      { sessionId: activeSession.id },
     );
-    await updateChatbotSession(activeSession.id, {
-      metadata: { tutorialCompleted: true },
-    });
+    await patchSession(
+      {
+        metadata: { tutorialCompleted: true },
+      },
+      activeSession.id,
+    );
   };
 
   const handleQuickReply = async (reply: QuickReply) => {
     setQuickReplies((prev) => prev.filter((item) => item.id !== reply.id));
     const payload = reply.payload;
+    if (session) {
+      const logPayload: Record<string, unknown> = {
+        payloadType: payload.type,
+      };
+      if (
+        payload.type === "service_detail" ||
+        payload.type === "select_service"
+      ) {
+        logPayload.serviceId = payload.serviceId;
+      }
+      if (payload.type === "link") {
+        logPayload.href = payload.href;
+      }
+      if (payload.type === "start_submission") {
+        logPayload.submissionType = payload.submissionType;
+      }
+      if (payload.type === "knowledge") {
+        logPayload.topic = payload.topic;
+      }
+      await recordSessionAction({
+        type: resolveQuickReplyActionType(reply),
+        label: reply.label,
+        source: "quick-action",
+        payload: logPayload,
+      });
+      await pushMessage(
+        "system",
+        `Quick action selected: ${reply.label}`,
+        BOT_INTENTS.TUTORIAL,
+        { display: false, sessionId: session.id },
+      );
+    }
     switch (payload.type) {
       case "knowledge": {
         if (payload.topic === "services") {
@@ -448,15 +546,19 @@ export default function JbrankyChatbot() {
             })),
           );
         } else if (type === "consultation") {
-          await updateChatbotSession(session!.id, {
-            metadata: { bookedConsultation: true },
-            lastIntent: BOT_INTENTS.CONSULTATION,
-          });
+          if (!session) break;
+          await patchSession(
+            {
+              metadata: { bookedConsultation: true },
+              lastIntent: BOT_INTENTS.CONSULTATION,
+            },
+            session.id,
+          );
           const q = new URLSearchParams({
             type: "consultation",
-            name: session!.visitorName,
-            email: session!.visitorEmail,
-            phone: session!.visitorPhone,
+            name: session.visitorName,
+            email: session.visitorEmail,
+            phone: session.visitorPhone,
           });
           navigate(`/contact?${q.toString()}`);
           await pushMessage(
@@ -556,23 +658,36 @@ export default function JbrankyChatbot() {
     try {
       await saveSubmission(payload);
       try {
-        await updateChatbotSession(session.id, {
-          metadata: {
-            bookedConsultation: flow.type === "consultation" ? true : undefined,
-            requestedCallback: flow.type === "callback" ? true : undefined,
-            requestedService:
-              flow.type === "service" ? (flow.serviceId ?? null) : undefined,
+        await patchSession(
+          {
+            metadata: {
+              bookedConsultation:
+                flow.type === "consultation" ? true : undefined,
+              requestedCallback: flow.type === "callback" ? true : undefined,
+              requestedService:
+                flow.type === "service" ? (flow.serviceId ?? null) : undefined,
+            },
+            lastIntent:
+              flow.type === "service"
+                ? BOT_INTENTS.SERVICE_DETAIL
+                : flow.type === "consultation"
+                  ? BOT_INTENTS.CONSULTATION
+                  : flow.type === "callback"
+                    ? BOT_INTENTS.CALLBACK
+                    : BOT_INTENTS.GENERAL,
           },
-          lastIntent:
-            flow.type === "service"
-              ? BOT_INTENTS.SERVICE_DETAIL
-              : flow.type === "consultation"
-                ? BOT_INTENTS.CONSULTATION
-                : flow.type === "callback"
-                  ? BOT_INTENTS.CALLBACK
-                  : BOT_INTENTS.GENERAL,
-        });
+          session.id,
+        );
       } catch {}
+      await recordSessionAction({
+        type: flow.type,
+        label: "Lead submission captured",
+        source: "submission",
+        payload: {
+          detailsLength: details.trim().length,
+          serviceId: flow.serviceId,
+        },
+      });
       await pushMessage(
         "bot",
         "Thanks! I've logged this for our team. Expect a response within one business day.",
@@ -635,10 +750,13 @@ export default function JbrankyChatbot() {
       if (intent === BOT_INTENTS.CALLBACK) {
         setSubmissionFlow({ type: "callback" });
         if (session) {
-          await updateChatbotSession(session.id, {
-            metadata: { requestedCallback: true },
-            lastIntent: BOT_INTENTS.CALLBACK,
-          });
+          await patchSession(
+            {
+              metadata: { requestedCallback: true },
+              lastIntent: BOT_INTENTS.CALLBACK,
+            },
+            session.id,
+          );
         }
         await pushMessage(
           "bot",
