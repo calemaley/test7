@@ -52,6 +52,25 @@ export default function Contact() {
   });
 
   const watchType = form.watch("type");
+  const [showConsultationHint, setShowConsultationHint] = useState(
+    preType === "consultation",
+  );
+
+  useEffect(() => {
+    if (watchType === "consultation") {
+      setShowConsultationHint(true);
+      return;
+    }
+    setShowConsultationHint(false);
+  }, [watchType]);
+
+  useEffect(() => {
+    if (!showConsultationHint) {
+      return;
+    }
+    const timer = window.setTimeout(() => setShowConsultationHint(false), 6000);
+    return () => window.clearTimeout(timer);
+  }, [showConsultationHint]);
 
   const onSubmit = async (values: z.infer<typeof schema>) => {
     try {
