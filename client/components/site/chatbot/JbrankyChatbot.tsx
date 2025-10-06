@@ -747,10 +747,13 @@ export default function JbrankyChatbot() {
       if (intent === BOT_INTENTS.CALLBACK) {
         setSubmissionFlow({ type: "callback" });
         if (session) {
-          await updateChatbotSession(session.id, {
-            metadata: { requestedCallback: true },
-            lastIntent: BOT_INTENTS.CALLBACK,
-          });
+          await patchSession(
+            {
+              metadata: { requestedCallback: true },
+              lastIntent: BOT_INTENTS.CALLBACK,
+            },
+            session.id,
+          );
         }
         await pushMessage(
           "bot",
