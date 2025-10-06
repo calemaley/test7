@@ -169,7 +169,15 @@ export default function Contact() {
                   control={form.control}
                   name="type"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="relative">
+                      {showConsultationHint && watchType === "consultation" && (
+                        <div className="pointer-events-none absolute -top-14 right-0 flex flex-col items-end text-secondary">
+                          <span className="rounded-full bg-secondary px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow-md shadow-secondary/40">
+                            Consultation form ready
+                          </span>
+                          <ArrowDownCircle className="mt-2 h-6 w-6 animate-bounce" />
+                        </div>
+                      )}
                       <FormLabel>Inquiry type</FormLabel>
                       <FormControl>
                         <Select
